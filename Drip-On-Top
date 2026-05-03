@@ -1,0 +1,254 @@
+--// Drip Highlight UI (Roblox LocalScript)
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "DripHighlightUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+-- Main Frame
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 260, 0, 150)
+Main.Position = UDim2.new(0.5, -130, 0.5, -75)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.Parent = ScreenGui
+
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 12)
+
+local UIStroke = Instance.new("UIStroke", Main)
+UIStroke.Color = Color3.fromRGB(80, 0, 120)
+UIStroke.Thickness = 1.5
+UIStroke.Transparency = 0.3
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -60, 0, 30)
+Title.Position = UDim2.new(0, 55, 0, 5)
+Title.BackgroundTransparency = 1
+Title.Text = "Drip Highlight🤡"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Title.TextColor3 = Color3.fromRGB(170, 0, 255)
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Main
+
+-- Close Button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 20, 0, 20)
+CloseBtn.Position = UDim2.new(0, 5, 0, 5)
+CloseBtn.Text = "X"
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 14
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+CloseBtn.TextColor3 = Color3.new(1,1,1)
+CloseBtn.Parent = Main
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
+
+-- Minimize Button
+local MinBtn = Instance.new("TextButton")
+MinBtn.Size = UDim2.new(0, 20, 0, 20)
+MinBtn.Position = UDim2.new(0, 30, 0, 5)
+MinBtn.Text = "-"
+MinBtn.Font = Enum.Font.GothamBold
+MinBtn.TextSize = 14
+MinBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+MinBtn.TextColor3 = Color3.new(1,1,1)
+MinBtn.Parent = Main
+Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(1, 0)
+
+-- Start Button
+local StartBtn = Instance.new("TextButton")
+StartBtn.Size = UDim2.new(0.6, 0, 0, 40)
+StartBtn.Position = UDim2.new(0.2, 0, 0.55, 0)
+StartBtn.BackgroundColor3 = Color3.fromRGB(170, 0, 255)
+StartBtn.Text = "Start?"
+StartBtn.Font = Enum.Font.GothamBold
+StartBtn.TextSize = 18
+StartBtn.TextColor3 = Color3.new(1,1,1)
+StartBtn.Parent = Main
+Instance.new("UICorner", StartBtn).CornerRadius = UDim.new(0, 10)
+
+-- Entrada animada
+Main.Size = UDim2.new(0, 0, 0, 0)
+TweenService:Create(Main, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {
+	Size = UDim2.new(0, 260, 0, 150)
+}):Play()
+
+-- Drag (mobile + PC)
+local dragging, dragInput, dragStart, startPos
+
+Main.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Main.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+Main.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		Main.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- Minimize lógica
+local minimized = false
+
+MinBtn.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	
+	if minimized then
+		MinBtn.Text = "+"
+		StartBtn.Visible = false
+		
+		TweenService:Create(Main, TweenInfo.new(0.3), {
+			Size = UDim2.new(0, 260, 0, 40)
+		}):Play()
+	else
+		MinBtn.Text = "-"
+		
+		TweenService:Create(Main, TweenInfo.new(0.3), {
+			Size = UDim2.new(0, 260, 0, 150)
+		}):Play()
+		
+		task.wait(0.2)
+		StartBtn.Visible = true
+	end
+end)
+
+-- Close
+CloseBtn.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
+
+-- Start Button (modo "pulse", não trava estado)
+local busy = false
+
+StartBtn.MouseButton1Click:Connect(function()
+	if busy then return end -- evita spam
+	
+	busy = true
+	StartBtn.Text = "Started!"
+	
+	-- CREATE FUNCTION
+local ps = game:GetService("Players")
+local rs = game:GetService("RunService")
+local workspace = game.Workspace
+
+local darkPurple = Color3.new( 0.4, 0, 4.0 )
+
+local function newHighlight()
+	local h = Instance.new("Highlight")
+	h.Name = "DarkPurpleBody"
+	h.FillColor   = darkPurple
+	h.OutlineColor= darkPurple
+	h.FillTransparency   = 1      -- só quer o contorno
+	h.OutlineTransparency= 0
+	h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- visível através de paredes
+	h.Enabled = true
+	return h
+end
+
+local function applyToModel(model)
+	if not model then return end
+	if model:FindFirstChild("DarkPurpleBody") then return end
+	
+	-- Verifica se o modelo tem um Humanoid
+	local humanoid = model:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+	
+	local h = newHighlight()
+	h.Adornee = model -- fixa o tamanho exato do model Humanoid
+	h.Parent  = model
+end
+
+-- Função para aplicar a todos os jogadores
+local function onPlayer(p)
+	p.CharacterAdded:Connect(function(char)
+		applyToModel(char)
+	end)
+	if p.Character then applyToModel(p.Character) end
+end
+
+-- Função para buscar todos os Humanoids no workspace
+local function scanAllHumanoids()
+	-- Busca todos os descendentes do workspace
+	for _, obj in ipairs(workspace:GetDescendants()) do
+		-- Verifica se tem Humanoid
+		local humanoid = obj:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			applyToModel(obj)
+		end
+	end
+end
+
+-- Conecta eventos de jogadores
+ps.PlayerAdded:Connect(onPlayer)
+for _,p in ipairs(ps:GetPlayers()) do onPlayer(p) end
+
+-- Executa uma verificação inicial para pegar todos os Humanoids existentes
+scanAllHumanoids()
+
+-- Fullbright Universal (Luau) - leve para mobile
+
+local Lighting = game:GetService("Lighting")
+
+Lighting.Brightness = 1
+Lighting.FogEnd = 0e0
+Lighting.GlobalShadows = false
+Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+
+for _, v in pairs(Lighting:GetDescendants()) do
+	if v:IsA("PostEffect") then
+		v.Enabled = false
+	end
+end
+
+--Nofog Universal (Luau) - leve para mobile
+
+local Lighting = game:GetService("Lighting")local function removeFog()	Lighting.FogStart = 0	Lighting.FogEnd = 1000000	Lighting.FogColor = Color3.fromRGB(255, 255, 255)end-- Aplicar uma vezremoveFog()
+ 
+	-- animação leve
+	local tween = TweenService:Create(StartBtn, TweenInfo.new(0.15), {
+		Size = UDim2.new(0.65, 0, 0, 42)
+	})
+	tween:Play()
+	tween.Completed:Wait()
+	
+	TweenService:Create(StartBtn, TweenInfo.new(0.15), {
+		Size = UDim2.new(0.6, 0, 0, 40)
+	}):Play()
+	
+	task.wait(0.6) -- tempo que fica "Started!"
+	StartBtn.Text = "Start?"
+	
+	busy = false
+end)
