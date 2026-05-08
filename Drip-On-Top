@@ -232,10 +232,6 @@ for _, v in pairs(Lighting:GetDescendants()) do
 	end
 end
 
---Nofog Universal (Luau) - leve para mobile
-
-local Lighting = game:GetService("Lighting")local function removeFog()	Lighting.FogStart = 0	Lighting.FogEnd = 1000000	Lighting.FogColor = Color3.fromRGB(255, 255, 255)end-- Aplicar uma vezremoveFog()
- 
 	-- animação leve
 	local tween = TweenService:Create(StartBtn, TweenInfo.new(0.15), {
 		Size = UDim2.new(0.65, 0, 0, 42)
