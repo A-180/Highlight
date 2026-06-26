@@ -216,23 +216,27 @@ for _,p in ipairs(ps:GetPlayers()) do onPlayer(p) end
 -- Executa uma verificação inicial para pegar todos os Humanoids existentes
 scanAllHumanoids()
 
----// FullBright + NoFog (Client)
+--// FullBright + NoFog (Client)
 --// Coloque em StarterPlayerScripts
---// Desenvolvido para baixo consumo de desempenho.
+--// Ajustado: iluminação reduzida + ciclo dia/noite normal
 
 local Lighting = game:GetService("Lighting")
 
 local CONFIG = {
-    Brightness = 0.5,
-    ClockTime = 8,
-    Ambient = Color3.fromRGB(255,255,255),
-    OutdoorAmbient = Color3.fromRGB(255,255,255),
-    EnvironmentDiffuseScale = 1,
-    EnvironmentSpecularScale = 1,
-    ExposureCompensation = 1,
+    Brightness = 0.75,
+
+    Ambient = Color3.fromRGB(130,130,130),
+    OutdoorAmbient = Color3.fromRGB(150,150,150),
+
+    EnvironmentDiffuseScale = 0.6,
+    EnvironmentSpecularScale = 0.5,
+
+    ExposureCompensation = 0.3,
+
     FogStart = 1000000,
     FogEnd = 1000001,
     FogColor = Color3.fromRGB(255,255,255),
+
     GlobalShadows = false
 }
 
@@ -244,16 +248,19 @@ local function removeEffect(effect)
         effect.Haze = 0
         effect.Glare = 0
         effect.Decay = Color3.new(1,1,1)
+
     elseif effect:IsA("BloomEffect")
-        or effect:IsA("SunRaysEffect")
-        or effect:IsA("DepthOfFieldEffect")
-        or effect:IsA("ColorCorrectionEffect") then
+    or effect:IsA("SunRaysEffect")
+    or effect:IsA("DepthOfFieldEffect")
+    or effect:IsA("ColorCorrectionEffect") then
 
         effect.Enabled = false
     end
 end
 
+
 local function applyLighting()
+
     if updating then
         return
     end
@@ -261,11 +268,15 @@ local function applyLighting()
     updating = true
 
     Lighting.Brightness = CONFIG.Brightness
-    Lighting.ClockTime = CONFIG.ClockTime
+
+    -- Não altera ClockTime para manter dia/noite
+
     Lighting.Ambient = CONFIG.Ambient
     Lighting.OutdoorAmbient = CONFIG.OutdoorAmbient
+
     Lighting.EnvironmentDiffuseScale = CONFIG.EnvironmentDiffuseScale
     Lighting.EnvironmentSpecularScale = CONFIG.EnvironmentSpecularScale
+
     Lighting.ExposureCompensation = CONFIG.ExposureCompensation
 
     Lighting.FogStart = CONFIG.FogStart
@@ -274,27 +285,35 @@ local function applyLighting()
 
     Lighting.GlobalShadows = CONFIG.GlobalShadows
 
+
     for _,v in ipairs(Lighting:GetChildren()) do
         removeEffect(v)
     end
 
+
     updating = false
 end
 
--- Primeira aplicação
+
+-- Aplicação inicial
 applyLighting()
 
--- Novos efeitos adicionados
+
+-- Remove efeitos novos adicionados
 Lighting.ChildAdded:Connect(function(child)
+
     task.defer(function()
         removeEffect(child)
     end)
+
 end)
 
--- Se alguma propriedade mudar, reaplica apenas uma vez
+
+-- Reaplica se o jogo alterar iluminação
 Lighting.Changed:Connect(function()
     applyLighting()
 end)
+
 
 	-- animação leve
 	local tween = TweenService:Create(StartBtn, TweenInfo.new(0.15), {
