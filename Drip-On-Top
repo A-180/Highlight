@@ -34,9 +34,9 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -60, 0, 30)
 Title.Position = UDim2.new(0, 55, 0, 5)
 Title.BackgroundTransparency = 1
-Title.Text = "Drip Highlight🤡"
+Title.Text = "👾Drip Highlight"
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 16
+Title.TextSize = 17
 Title.TextColor3 = Color3.fromRGB(170, 0, 255)
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Parent = Main
@@ -59,7 +59,7 @@ MinBtn.Size = UDim2.new(0, 20, 0, 20)
 MinBtn.Position = UDim2.new(0, 30, 0, 5)
 MinBtn.Text = "-"
 MinBtn.Font = Enum.Font.GothamBold
-MinBtn.TextSize = 14
+MinBtn.TextSize = 16
 MinBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 MinBtn.TextColor3 = Color3.new(1,1,1)
 MinBtn.Parent = Main
@@ -216,21 +216,85 @@ for _,p in ipairs(ps:GetPlayers()) do onPlayer(p) end
 -- Executa uma verificação inicial para pegar todos os Humanoids existentes
 scanAllHumanoids()
 
--- Fullbright Universal (Luau) - leve para mobile
+---// FullBright + NoFog (Client)
+--// Coloque em StarterPlayerScripts
+--// Desenvolvido para baixo consumo de desempenho.
 
 local Lighting = game:GetService("Lighting")
 
-Lighting.Brightness = 1
-Lighting.FogEnd = 0e0
-Lighting.GlobalShadows = false
-Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
-Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+local CONFIG = {
+    Brightness = 10,
+    ClockTime = 14,
+    Ambient = Color3.fromRGB(255,255,255),
+    OutdoorAmbient = Color3.fromRGB(255,255,255),
+    EnvironmentDiffuseScale = 1,
+    EnvironmentSpecularScale = 1,
+    ExposureCompensation = 1,
+    FogStart = 1000000,
+    FogEnd = 1000001,
+    FogColor = Color3.fromRGB(255,255,255),
+    GlobalShadows = false
+}
 
-for _, v in pairs(Lighting:GetDescendants()) do
-	if v:IsA("PostEffect") then
-		v.Enabled = false
-	end
+local updating = false
+
+local function removeEffect(effect)
+    if effect:IsA("Atmosphere") then
+        effect.Density = 0
+        effect.Haze = 0
+        effect.Glare = 0
+        effect.Decay = Color3.new(1,1,1)
+    elseif effect:IsA("BloomEffect")
+        or effect:IsA("SunRaysEffect")
+        or effect:IsA("DepthOfFieldEffect")
+        or effect:IsA("ColorCorrectionEffect") then
+
+        effect.Enabled = false
+    end
 end
+
+local function applyLighting()
+    if updating then
+        return
+    end
+
+    updating = true
+
+    Lighting.Brightness = CONFIG.Brightness
+    Lighting.ClockTime = CONFIG.ClockTime
+    Lighting.Ambient = CONFIG.Ambient
+    Lighting.OutdoorAmbient = CONFIG.OutdoorAmbient
+    Lighting.EnvironmentDiffuseScale = CONFIG.EnvironmentDiffuseScale
+    Lighting.EnvironmentSpecularScale = CONFIG.EnvironmentSpecularScale
+    Lighting.ExposureCompensation = CONFIG.ExposureCompensation
+
+    Lighting.FogStart = CONFIG.FogStart
+    Lighting.FogEnd = CONFIG.FogEnd
+    Lighting.FogColor = CONFIG.FogColor
+
+    Lighting.GlobalShadows = CONFIG.GlobalShadows
+
+    for _,v in ipairs(Lighting:GetChildren()) do
+        removeEffect(v)
+    end
+
+    updating = false
+end
+
+-- Primeira aplicação
+applyLighting()
+
+-- Novos efeitos adicionados
+Lighting.ChildAdded:Connect(function(child)
+    task.defer(function()
+        removeEffect(child)
+    end)
+end)
+
+-- Se alguma propriedade mudar, reaplica apenas uma vez
+Lighting.Changed:Connect(function()
+    applyLighting()
+end)
 
 	-- animação leve
 	local tween = TweenService:Create(StartBtn, TweenInfo.new(0.15), {
