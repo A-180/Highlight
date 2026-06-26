@@ -34,7 +34,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -60, 0, 30)
 Title.Position = UDim2.new(0, 55, 0, 5)
 Title.BackgroundTransparency = 1
-Title.Text = "ㅤㅤㅤㅤㅤㅤㅤDrip Highlight"
+Title.Text = "ㅤㅤㅤDrip Highlight"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 16
 Title.TextColor3 = Color3.fromRGB(170, 0, 255)
@@ -223,7 +223,6 @@ scanAllHumanoids()
 local Lighting = game:GetService("Lighting")
 
 local CONFIG = {
-    Brightness = 1,
     ClockTime = 14,
     Ambient = Color3.fromRGB(255,255,255),
     OutdoorAmbient = Color3.fromRGB(255,255,255),
