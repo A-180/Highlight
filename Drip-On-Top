@@ -223,7 +223,7 @@ scanAllHumanoids()
 local Lighting = game:GetService("Lighting")
 
 local CONFIG = {
-    ClockTime = 12,
+    ClockTime = 8
     Ambient = Color3.fromRGB(255,255,255),
     OutdoorAmbient = Color3.fromRGB(255,255,255),
     EnvironmentDiffuseScale = 1,
